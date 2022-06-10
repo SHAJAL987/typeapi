@@ -1,0 +1,4 @@
+npm install -g typescript nodemon ts-node prettier
+----
+tsc --init
+----

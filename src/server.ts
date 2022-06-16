@@ -1,8 +1,8 @@
 import http from 'http';
 import express, { Application, Request, Response, NextFunction } from 'express';
 import bodyParser, { urlencoded } from 'body-parser';
-import logging from './config/logging';
-import { getPort, getHostName } from './config/config';
+import logging from './config/app.logging';
+import { getPort, getHostName } from './config/app.config';
 
 /* Modules Path__*/
 const userModule = require('../src/modules/user');
@@ -53,6 +53,11 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         message: 'Internal Server Error',
         reason: err.message
     });
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception : ', err.message);
+    process.exit(1);
 });
 
 /* Create the server */

@@ -1,8 +1,8 @@
 import express from 'express';
-import sampleService from '../services/sample.service';
+import simpleService from '../services/sample.service';
 
 const router = express.Router();
 
-router.get('/pong', sampleService.sampleHealthCheck);
+router.get('/pong', simpleService.sampleHealthCheck);
 
 export default router;

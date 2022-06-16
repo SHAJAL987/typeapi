@@ -1,17 +1,17 @@
-import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
-dotenv.config();
+const configPath = path.resolve(__dirname + '/../../appconfig.json');
+export const appConf: any = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 
-const SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || 'localhost';
-const SERVER_PORT = process.env.SERVER_PORT || 8888;
+export function getPort() {
+    return Number(appConf.PORT) || 3000;
+}
 
-const SERVER = {
-    hostname: SERVER_HOSTNAME,
-    port: SERVER_PORT
-};
+export function getHostName() {
+    return String(appConf.DB_HOST) || 'localhost';
+}
 
-const config = {
-    server: SERVER
-};
-
-export default config;
+export function getDatabaseType() {
+    return appConf.DB_TYPE || 'postgres';
+}

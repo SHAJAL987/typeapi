@@ -1,17 +1,17 @@
 import http from 'http';
-import express from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import bodyParser, { urlencoded } from 'body-parser';
 import logging from './config/logging';
-import config from './config/config';
+import { getPort, getHostName } from './config/config';
 
 /* Modules Path__*/
 const userModule = require('../src/modules/user');
 
-const router = express();
+const app = express();
 const NAMESPACE = 'Server';
 
 /* Logging the request */
-router.use((req, res, next) => {
+app.use((req, res, next) => {
     logging.info(NAMESPACE, `METHOD - [${req.method}], URL - [${req.url}], IP - [${req.socket.remoteAddress}]`);
 
     res.on('finish', () => {
@@ -22,15 +22,15 @@ router.use((req, res, next) => {
 });
 
 /* Parse the request */
-router.use(
+app.use(
     bodyParser.urlencoded({
         extended: true
     })
 );
-router.use(bodyParser.json());
+app.use(bodyParser.json());
 
 /* Rules of our API */
-router.use((req, res, next) => {
+app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-with, Content-Type, Authorization');
 
@@ -43,17 +43,18 @@ router.use((req, res, next) => {
 });
 
 /* Routers */
-userModule.init(router);
+userModule.init(app);
 
-/* Error Handling */
-router.use((req, res, next) => {
-    const error = new Error('Not Found.');
-
-    return res.status(404).json({
-        message: error.message
+/* Global exceptin handler */
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    console.log(err);
+    return res.status(500).json({
+        statusCode: 500,
+        message: 'Internal Server Error',
+        reason: err.message
     });
 });
 
 /* Create the server */
-const httpServer = http.createServer(router);
-httpServer.listen(config.server.port, () => logging.info(NAMESPACE, `server running on ${config.server.hostname}:${config.server.port}`));
+const httpServer = http.createServer(app);
+httpServer.listen(getPort(), () => logging.info(NAMESPACE, `server running on ${getHostName()}:${getPort()}`));
